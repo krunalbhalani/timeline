@@ -1,0 +1,108 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+
+<script src="../src/d3.v2.min.js" type="application/javascript"></script>
+<script src="../src/timeknots.js" type="application/javascript"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<style>
+body {
+  font: 18px "Helvetica Neue";
+  font-weight:300;
+  text-rendering: optimizeLegibility;
+  margin-left: 20px;
+}
+</style>
+</head>
+<body>
+    <div id="timeline2"></div>
+    <label for="amount-time">Time</label>
+    <input type="text" name="amount-time" id="amount-time" style="border: 0; color: #666666; font-weight: bold;" value="6:00 - 23:00"/>
+    <div id="slider-time"></div>
+
+<script type="text/javascript">
+
+var mySchedule = [{name:"Wake up", date: "2012-09-28T06:00:00"},
+  {name:"Breakfast", 	date:"2012-09-28T06:30:00"},
+  {name:"Leave kids at school", 	date:"2012-09-28T07:45:00"},
+  {name:"Check email", date:	"2012-09-28T08:00:00"},
+  {name:"Lunch", date:	"2012-09-28T11:30:00"},
+  {name:"Send report", date:	"2012-09-28T13:15:00"},
+  {name:"Pick kids", date:	"2012-09-28T17:16:00"},
+  {name:"Dinner", date:	"2012-09-28T18:13:00"},
+  {name:"Watch a movie", date:	"2012-09-28T20:16:00"},
+  {name:"Go to sleep", date:	"2012-09-28T23:00:00"}
+];
+
+TimeKnots.draw("#timeline2", mySchedule, {horizontalLayout: true, color: "#669", height: 100, width:900, showLabels: true, labelFormat:"%H:%M"});
+
+var hours1 = 0;
+var minutes1 = 0;
+var hours2 = 0;
+var minutes2 = 0;
+
+//$( function() {
+   $( "#slider-time" ).slider({
+    range: true,
+        min: 0,
+        max: 1440,
+        step: 15,
+        values: [0, 1440 ],
+        change: function(e,ui){
+          var filterdata= mySchedule.filter(filterTime);
+          TimeKnots.draw("#timeline2", filterdata, {horizontalLayout: true, color: "#669", height:100, width:900, showLabels: true, labelFormat:"%H:%M"});
+        }, 
+        slide: function( event, ui ) {
+          
+            hours1 = Math.floor(ui.values[0] / 60);
+            minutes1 = ui.values[0] - (hours1 * 60);
+
+            if(hours1.length < 10) hours1= '0' + hours;
+            if(minutes1.length < 10) minutes1 = '0' + minutes;
+
+            if(minutes1 == 0) minutes1 = '00';
+
+            hours2 = Math.floor(ui.values[1] / 60);
+            minutes2 = ui.values[1] - (hours2 * 60);
+
+            if(hours2.length < 10) hours2= '0' + hours;
+            if(minutes2.length < 10) minutes2 = '0' + minutes;
+
+            if(minutes2 == 0) minutes2 = '00';
+
+            jQuery('#amount-time').val(hours1+':'+minutes1+' - '+hours2+':'+minutes2 );
+        }
+    });
+//});
+
+function filterTime(current_value)
+{
+    var hours3 = new Date(current_value.date).getHours();
+    var minutes3 = new Date(current_value.date).getMinutes();
+    if(compareTime(hours1+':'+minutes1,hours3+':'+minutes3) == 1 || compareTime(hours2+':'+minutes2,hours3+':'+minutes3) <=0) 
+    {
+      return false;
+    }  
+    return true;
+}
+function compareTime(str1, str2){
+    if(str1 === str2){
+        return 0;
+    }
+    var time1 = str1.split(':');
+    var time2 = str2.split(':');
+    if(eval(time1[0]) > eval(time2[0])){
+        return 1;
+    } else if(eval(time1[0]) == eval(time2[0]) && eval(time1[1]) > eval(time2[1])) {
+        return 1;
+    } else {
+        return -1;
+    }
+}
+</script>
+</body>
+</html>
+
